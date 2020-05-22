@@ -1,0 +1,68 @@
+body {
+  margin: 0;
+  background-color: #aaa;
+}
+
+.app {
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  display: flex;
+  flex-direction: row;
+}
+
+.buttons-mount {
+  max-width: 75%;
+  display: flex;
+  flex-direction: column;
+}
+
+#three-mount {
+  position: relative;
+  width: 100%;
+  flex-grow: 1;
+}
+
+.label {
+  color: #fff;
+  font-family: sans-serif;
+  padding: 2px;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.controlBtns {
+  display: flex;
+  flex-direction: row;
+  padding: 10px 10px 0;
+}
+
+.controlBtn {
+  margin-right: 10px;
+  margin-bottom: 10px;
+  font-size: 20px;
+  font-family: monospace;
+  border-radius: 0;
+  border: solid 1px #7e7e7e;
+  padding: 3px 10px;
+}
+
+.stats-table {
+  margin: auto;
+  border: solid #666 1px;
+}
+
+.stats-table > div:nth-child(2n) {
+  background-color: #ccc;
+}
+
+.stats-table-row {
+  display: flex;
+  flex-direction: row;
+  padding-top: 3px;
+  padding-bottom: 3px;
+}
+
+.stats-table-row > div {
+  width: 50px;
+  text-align: center;
+}
