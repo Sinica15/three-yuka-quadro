@@ -7,15 +7,15 @@ import { v4 } from "uuid";
 import Vehicle from "../vehicle";
 
 interface ControlBtnsProps {
-  entityManager: YUKA.EntityManager,
-  vehiclesArr: Vehicle[],
+  entityManager: YUKA.EntityManager;
+  vehiclesArr: Vehicle[];
 }
 
 export default class ControlBtns extends React.Component<ControlBtnsProps, {}> {
   start = () => {
     const tp = { x: -8, z: -8 };
     this.props.vehiclesArr.forEach((v) => v.setTargetPosition(tp));
-  }
+  };
 
   // label = () => {
   //   this.props.vehiclesArr.forEach((v) => v.updateLabel());
@@ -25,13 +25,13 @@ export default class ControlBtns extends React.Component<ControlBtnsProps, {}> {
     this.props.vehiclesArr.forEach((v) => {
       v.enable();
     });
-  }
+  };
 
   stop = () => {
     this.props.vehiclesArr.forEach((v) => {
       v.disable();
     });
-  }
+  };
 
   move_SO = (x: number, z: number) => {
     const data: MessageCommand = {
@@ -44,8 +44,14 @@ export default class ControlBtns extends React.Component<ControlBtnsProps, {}> {
         to: { x, z },
       },
     };
-    return () => this.props.entityManager.entities[0].sendMessage(this.props.vehiclesArr[3], "", 0, data);
-  }
+    return () =>
+      this.props.entityManager.entities[0].sendMessage(
+        this.props.vehiclesArr[3],
+        "",
+        0,
+        data
+      );
+  };
 
   sepEn = () => {
     const data: MessageCommand = {
@@ -57,8 +63,13 @@ export default class ControlBtns extends React.Component<ControlBtnsProps, {}> {
         action: commandActions.separationEnable,
       },
     };
-    this.props.entityManager.entities[0].sendMessage(this.props.vehiclesArr[3], "", 0, data);
-  }
+    this.props.entityManager.entities[0].sendMessage(
+      this.props.vehiclesArr[3],
+      "",
+      0,
+      data
+    );
+  };
 
   sepDis = () => {
     const data: MessageCommand = {
@@ -70,8 +81,13 @@ export default class ControlBtns extends React.Component<ControlBtnsProps, {}> {
         action: commandActions.separationDisable,
       },
     };
-    this.props.entityManager.entities[0].sendMessage(this.props.vehiclesArr[3], "", 0, data);
-  }
+    this.props.entityManager.entities[0].sendMessage(
+      this.props.vehiclesArr[3],
+      "",
+      0,
+      data
+    );
+  };
 
   render() {
     const btns = [

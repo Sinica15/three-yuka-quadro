@@ -1,13 +1,13 @@
 // @ts-ignore
 import * as YUKA from "yuka/build/yuka.module";
 import * as THREE from "three/src/Three";
-import {CSS2DObject} from "three/examples/jsm/renderers/CSS2DRenderer";
-import {v4} from "uuid";
+import { CSS2DObject } from "three/examples/jsm/renderers/CSS2DRenderer";
+import { v4 } from "uuid";
 
 import vehicleGeometry from "./vehicleGeometry";
 import vehicleMaterial from "./vehicleMaterial";
-import {MessageCommand, MessageType, MessageTypes} from "./messagesTypes";
-import {commandActions, CommandMove} from "./commandTypes";
+import { MessageCommand, MessageType, MessageTypes } from "./messagesTypes";
+import { commandActions, CommandMove } from "./commandTypes";
 
 const messageDelay = 0.01; //seconds
 const messageDistance = 40;
@@ -82,7 +82,7 @@ export default class Vehicle extends YUKA.Vehicle {
     return super.update(delta);
   }
 
-  setFuncInUpdate(fn:() => void) {
+  setFuncInUpdate(fn: () => void) {
     this.functionInUpdate = fn;
   }
 
