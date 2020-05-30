@@ -14,9 +14,9 @@ export const vehiclesArr: Vehicle[] = [];
 
 function initObjects(scene: THREE.Scene) {
   const initDot = { x: 20, z: 20 };
-  const distance = 5;
-  const numberInRow = 8;
-  const numberInColumn = 3;
+  const distance = 9;
+  const numberInRow = 5;
+  const numberInColumn = 2;
 
   const initPos: { x: number; z: number }[] = [];
 

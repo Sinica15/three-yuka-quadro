@@ -20,7 +20,7 @@ export default function (
         <ControlBtns entityManager={entityManager} vehiclesArr={vehiclesArr} />
         <div id={"three-mount"} />
       </div>
-      <StatsTable vehiclesArr={vehiclesArr} />
+      <StatsTable vehiclesArr={vehiclesArr} entityManager={entityManager} />
     </div>,
     document.getElementById("app")
   );

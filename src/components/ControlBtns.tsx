@@ -33,26 +33,6 @@ export default class ControlBtns extends React.Component<ControlBtnsProps, {}> {
     });
   };
 
-  move_SO = (x: number, z: number) => {
-    const data: MessageCommand = {
-      uuid: v4(),
-      type: MessageTypes.command,
-      fromWho: "from earth",
-      sayOther: true,
-      command: {
-        action: commandActions.move,
-        to: { x, z },
-      },
-    };
-    return () =>
-      this.props.entityManager.entities[0].sendMessage(
-        this.props.vehiclesArr[3],
-        "",
-        0,
-        data
-      );
-  };
-
   sepEn = () => {
     const data: MessageCommand = {
       uuid: v4(),
@@ -96,10 +76,6 @@ export default class ControlBtns extends React.Component<ControlBtnsProps, {}> {
       { name: "stop", cb: this.stop },
       { name: "sep enb", cb: this.sepEn },
       { name: "sep dis", cb: this.sepDis },
-      { name: "move -60 -60", cb: this.move_SO(-60, -60) },
-      { name: "move -60 60", cb: this.move_SO(-60, 60) },
-      { name: "move 60 -60", cb: this.move_SO(60, -60) },
-      { name: "move 60 60", cb: this.move_SO(60, 60) },
     ];
 
     return (
@@ -108,7 +84,6 @@ export default class ControlBtns extends React.Component<ControlBtnsProps, {}> {
           {btns.map((btn, i) => (
             <button
               key={`btn-${i}-${btn.name}`}
-              id={"start-btn"}
               className={"controlBtn"}
               onClick={btn.cb}
             >
