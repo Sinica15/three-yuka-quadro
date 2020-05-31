@@ -37,7 +37,7 @@ export default class ControlFields extends React.Component<
     this.setState({
       separation: false,
       enabled: true,
-    })
+    });
     const { x, z, sayOther } = this.state;
     const data: MessageCommand = {
       uuid: v4(),
@@ -84,49 +84,120 @@ export default class ControlFields extends React.Component<
     this.props.earth.sendMessage(this.props.vehicle, "", 0, data);
   };
 
+  buildSquire = () => {
+    const data: MessageCommand = {
+      uuid: v4(),
+      type: MessageTypes.command,
+      fromWho: "from earth",
+      command: {
+        action: commandActions.formSquire,
+        to: new YUKA.Vector3(this.state.x, 0, this.state.z),
+      },
+    };
+    this.props.earth.sendMessage(this.props.vehicle, "", 0, data);
+  };
+
+  buildCircle = () => {
+    const data: MessageCommand = {
+      uuid: v4(),
+      type: MessageTypes.command,
+      fromWho: "from earth",
+      command: {
+        action: commandActions.formCircle,
+        to: new YUKA.Vector3(this.state.x, 0, this.state.z),
+      },
+    };
+    this.props.earth.sendMessage(this.props.vehicle, "", 0, data);
+  };
+
   render() {
+    const align = "center";
     return (
-      <div className={"controlFields"}>
-        <input
-          className={"controlFields__input"}
-          type="text"
-          placeholder={"x"}
-          value={this.state.x}
-          onChange={(e) => {
-            const { value } = e.target;
-            if (!isNaN(+value)) this.setState({ x: +value });
-          }}
-        />
-        <input
-          className={"controlFields__input"}
-          type="text"
-          placeholder={"z"}
-          value={this.state.z}
-          onChange={(e) => {
-            const { value } = e.target;
-            if (!isNaN(+value)) this.setState({ z: +value });
-          }}
-        />
-        <input
-          className={"controlFields__checkbox"}
-          type="checkbox"
-          checked={this.state.sayOther}
-          onChange={(e) => {
-            const { value } = e.target;
-            if (value === "on")
-              this.setState((prevSt) => ({ sayOther: !prevSt.sayOther }));
-          }}
-        />
-        <button className={"controlFields__button"} onClick={this.move}>
-          move
-        </button>
-        <button className="controlFields__button" onClick={this.separate}>
-          {!this.state.separation ? "enb" : "dis"}
-        </button>
-        <button className="controlFields__button" onClick={this.enable}>
-          {!this.state.enabled ? "enb" : "dis"}
-        </button>
-      </div>
+      <>
+        <td align={align}>
+          <input
+            className={"controlFields__input"}
+            type="text"
+            placeholder={"x"}
+            // value={this.state.x}
+            onChange={(e) => {
+              const { value } = e.target;
+              if (!isNaN(+value)) this.setState({ x: +value });
+            }}
+          />
+        </td>
+        <td align={align}>
+          <input
+            className={"controlFields__input"}
+            type="text"
+            placeholder={"z"}
+            // value={this.state.z}
+            onChange={(e) => {
+              const { value } = e.target;
+              if (!isNaN(+value)) this.setState({ z: +value });
+            }}
+          />
+        </td>
+        <td align={align}>
+          <input
+            className={"controlFields__checkbox"}
+            type="checkbox"
+            checked={this.state.sayOther}
+            onChange={(e) => {
+              const { value } = e.target;
+              if (value === "on")
+                this.setState((prevSt) => ({ sayOther: !prevSt.sayOther }));
+            }}
+          />
+        </td>
+        <td align={align}>
+          <button
+            className={"controlFields__button"}
+            title={`move to ${this.state.x} ${this.state.z}, ${
+              this.state.sayOther
+                ? "say other command"
+                : "dont say other command"
+            }`}
+            onClick={this.move}
+          >
+            move
+          </button>
+        </td>
+        <td align={align}>
+          <button
+            className="controlFields__button"
+            title={`${!this.state.separation ? "enable" : "disable"} separation`}
+            onClick={this.separate}>
+            {!this.state.separation ? "enb" : "dis"}
+          </button>
+        </td>
+        <td align={align}>
+          <button
+            className="controlFields__button"
+            title={`${!this.state.enabled ? "enable" : "disable"} vehicle`}
+            onClick={this.enable}>
+            {!this.state.enabled ? "enb" : "dis"}
+          </button>
+        </td>
+        <td align={align}>
+          <button
+            className="controlFields__button"
+            title={`squire to ${this.state.x} ${this.state.z}`}
+            onClick={this.buildSquire}
+          >
+            squire
+          </button>
+        </td>
+        <td align={align}>
+          <button
+            className="controlFields__button"
+            title={`circle to ${this.state.x} ${this.state.z}`}
+            onClick={this.buildCircle}
+          >
+            circle
+          </button>
+        </td>
+      </>
     );
   }
 }

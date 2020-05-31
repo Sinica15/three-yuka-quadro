@@ -12,10 +12,10 @@ export const entityManager = new YUKA.EntityManager();
 export const time = new YUKA.Time();
 export const vehiclesArr: Vehicle[] = [];
 
-export const initDot = { x: 26, z: 70 };
+export const initDot = { x: 26, z: 90 };
 export const distance = 13;
 export const numberInRow = 5;
-export const numberInColumn = 3;
+export const numberInColumn = 5;
 
 function initObjects(scene: THREE.Scene) {
   const initPos: { x: number; z: number }[] = [];

@@ -18,11 +18,12 @@ import {
   CommandMove,
   CommandSetStatus,
 } from "./commandTypes";
-import { numberInColumn, numberInRow } from "../index";
+import { distance, numberInColumn, numberInRow } from "../index";
 
 const messageDelay = 0.0; //seconds
 const messageDistance = 40;
 const separationWeight = 100;
+const statsUpdateTime = 120; // 60 frames / 20 upd time = 0.5 sec
 
 export enum statuses {
   free = "free",
@@ -47,13 +48,7 @@ export default class Vehicle extends YUKA.Vehicle {
   messageStore: MessageType[] = [];
   _: YUKA.Vehicle;
 
-  squireData: {
-    length: number;
-    depth: number;
-    distance: number;
-    free: Vehicle[];
-    to: YUKA.Vector3;
-  };
+  time: number = 0;
 
   functionInUpdate: () => void = () => {};
 
@@ -105,7 +100,11 @@ export default class Vehicle extends YUKA.Vehicle {
   }
 
   update(delta: Number): Vehicle {
-    this.functionInUpdate();
+    this.time++;
+    if (!(this.time % statsUpdateTime)) {
+      this.time = 0;
+      this.functionInUpdate();
+    }
     return super.update(delta);
   }
 
@@ -157,7 +156,7 @@ export default class Vehicle extends YUKA.Vehicle {
     }
   }
 
-  buildSquire(to: YUKA.Vector3, depth?: number) {
+  buildSquire(to: YUKA.Vector3) {
     const sendCoord = (v: Vehicle, x: number, z: number) => {
       this.sendMessage(v, {
         uuid: v4(),
@@ -169,13 +168,7 @@ export default class Vehicle extends YUKA.Vehicle {
         },
       });
     };
-    /*
-    for 3 * 5 = 15, 
-    length   = 4
-    depth    = 2
-    distance = 17
-     */
-    const distance = 17;
+
     const team = this.teamMembers.filter((tm) => tm !== this);
 
     for (let i = 0; i < numberInColumn; i++) {
@@ -193,6 +186,45 @@ export default class Vehicle extends YUKA.Vehicle {
       x: to.x - (numberInColumn - 1) * distance,
       z: to.z - (numberInRow - 1) * distance,
     });
+  }
+
+  buildCircle(to: YUKA.Vector3) {
+    const sendCoord = (v: Vehicle, x: number, z: number) => {
+      this.sendMessage(v, {
+        uuid: v4(),
+        fromWho: this,
+        type: MessageTypes.command,
+        command: {
+          action: commandActions.move,
+          to: new YUKA.Vector3(x, 0, z),
+        },
+      });
+    };
+
+    const team = this.teamMembers.filter((tm) => tm !== this);
+
+    team.forEach((tm) => {
+      this.sendMessage(tm, {
+        uuid: v4(),
+        fromWho: this,
+        type: MessageTypes.command,
+        command: {
+          action: commandActions.move,
+          to,
+        },
+      });
+      this.sendMessage(tm, {
+        uuid: v4(),
+        fromWho: this,
+        type: MessageTypes.command,
+        command: {
+          action: commandActions.separationEnable,
+        },
+      });
+    });
+
+    this.setTargetPosition(to);
+    this.switchSeparateBehavior(true);
   }
 
   setStatus(status: statuses) {
@@ -224,37 +256,39 @@ export default class Vehicle extends YUKA.Vehicle {
     // console.log(msg);
     switch (msg.type) {
       case MessageTypes.command:
-        if (msg.sayOther) this.sendMessageOther(msg);
         switch ((msg as MessageCommand).command.action) {
           case commandActions.move:
+            if (msg.sayOther) this.sendMessageOther(msg);
             this.switchSeparateBehavior(true, 3);
             this.setTargetPosition(
               ((msg as MessageCommand).command as CommandMove).to
             );
             break;
 
-          case commandActions.formCircle:
-            this.switchSeparateBehavior(true, separationWeight);
-            this.setTargetPosition(
-              ((msg as MessageCommand).command as CommandMove).to
-            );
+          case commandActions.formCircle: {
+            const { to } = (msg as MessageCommand).command as CommandMove;
+            this.buildCircle(to);
             break;
+          }
 
-          case commandActions.formSquire:
-            const { depth, to } = (msg as MessageCommand)
-              .command as CommandFormSquire;
-            depth ? this.buildSquire(to, depth) : this.buildSquire(to);
+          case commandActions.formSquire: {
+            const { to } = (msg as MessageCommand).command as CommandFormSquire;
+            this.buildSquire(to);
             break;
+          }
 
           case commandActions.separationEnable:
+            if (msg.sayOther) this.sendMessageOther(msg);
             this.switchSeparateBehavior(true, separationWeight);
             break;
 
           case commandActions.separationDisable:
+            if (msg.sayOther) this.sendMessageOther(msg);
             this.switchSeparateBehavior(false);
             break;
 
           case commandActions.setStatus:
+            if (msg.sayOther) this.sendMessageOther(msg);
             this.setStatus(
               ((msg as MessageCommand).command as CommandSetStatus).status
             );

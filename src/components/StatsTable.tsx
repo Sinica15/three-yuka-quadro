@@ -47,29 +47,59 @@ export default class StatsTable extends React.Component<StatsTableProps, {}> {
   }
 
   render() {
+    const align = "center";
     return (
-      <div className={"stats-table"}>
-        <div className={"stats-table-row"}>
-          <div>Id</div>
-          <div>status</div>
-          <div>x</div>
-          <div>z</div>
-          <div>Speed</div>
-        </div>
-        {this.state.vArr.map((v) => (
-          <div key={v.id} className={"stats-table-row "}>
-            <div>{v.id.substring(33, 36)}</div>
-            <div>{v.status}</div>
-            <div>{v.x}</div>
-            <div>{v.z}</div>
-            <div>{v.speed}</div>
-            <ControlFields
-              vehicle={v.vehicle}
-              earth={this.props.entityManager.entities[0]}
-            />
-          </div>
-        ))}
-      </div>
+      <table className={"stats-table"} cellSpacing={0}>
+        <thead>
+          <tr className={"stats-table-row"}>
+            <td align={align}>Id</td>
+            <td align={align}>x</td>
+            <td align={align}>z</td>
+            <td align={align}>Speed</td>
+            <td align={align}>x</td>
+            <td align={align}>z</td>
+            <td align={align}>
+              <div
+                style={{
+                  marginLeft: -15,
+                  marginRight: -15,
+                }}
+              >
+                say other
+              </div>
+            </td>
+            <td />
+            <td align={align}>separation</td>
+            <td align={align}>stop</td>
+            <td align={align}>form</td>
+            <td align={align}>form</td>
+          </tr>
+        </thead>
+        <tbody>
+          {this.state.vArr.map((v) => (
+            <tr key={v.id} className={"stats-table-row "}>
+              <td align={align}>
+                <div className={"stats-table__infoCell"}>
+                  {v.id.substring(33, 36)}
+                </div>{" "}
+              </td>
+              <td align={align}>
+                <div className={"stats-table__infoCell"}>{v.x}</div>{" "}
+              </td>
+              <td align={align}>
+                <div className={"stats-table__infoCell"}>{v.z}</div>{" "}
+              </td>
+              <td align={align}>
+                <div className={"stats-table__infoCell"}>{v.speed}</div>{" "}
+              </td>
+              <ControlFields
+                vehicle={v.vehicle}
+                earth={this.props.entityManager.entities[0]}
+              />
+            </tr>
+          ))}
+        </tbody>
+      </table>
     );
   }
 }

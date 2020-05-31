@@ -49,18 +49,18 @@ body {
 
 .stats-table {
   margin: auto;
-  border: solid #666 1px;
 }
 
-.stats-table > div:nth-child(2n) {
+.stats-table tbody> tr:nth-child(2n) {
   background-color: #ccc;
 }
 
 .stats-table-row {
-  display: flex;
-  flex-direction: row;
-  padding-top: 3px;
-  padding-bottom: 3px;
+}
+
+.stats-table__infoCell{
+  padding-left: 5px;
+  padding-right: 5px;
 }
 
 .stats-table-row > div {
@@ -69,20 +69,19 @@ body {
 }
 
 .controlFields {
-    display: flex;
-    flex-direction: row;
+  display: flex;
+  flex-direction: row;
 }
 
 .controlFields__input {
-    max-width: 40px;
-    margin-right: 5px;
+  max-width: 40px;
+  margin-right: 5px;
 }
 
 .controlFields__checkbox {
-    margin-left: 0;
-    margin-right: 5px;
+  margin-left: -10px;
+  margin-right: -10px;
 }
 
-.controlFields__button{
-
+.controlFields__button {
 }
