@@ -5,7 +5,7 @@ import Vehicle from "../vehicle";
 import { MessageCommand, MessageTypes } from "../vehicle/messagesTypes";
 import { v4 } from "uuid";
 import { commandActions } from "../vehicle/commandTypes";
-import ControlFields from "./controlFields";
+import ControlFields from "./ControlFields";
 
 interface StatsTableProps {
   vehiclesArr: Vehicle[];
@@ -51,13 +51,15 @@ export default class StatsTable extends React.Component<StatsTableProps, {}> {
       <div className={"stats-table"}>
         <div className={"stats-table-row"}>
           <div>Id</div>
+          <div>status</div>
           <div>x</div>
-          <div>y</div>
+          <div>z</div>
           <div>Speed</div>
         </div>
         {this.state.vArr.map((v) => (
           <div key={v.id} className={"stats-table-row "}>
             <div>{v.id.substring(33, 36)}</div>
+            <div>{v.status}</div>
             <div>{v.x}</div>
             <div>{v.z}</div>
             <div>{v.speed}</div>

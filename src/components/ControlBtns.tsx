@@ -69,6 +69,24 @@ export default class ControlBtns extends React.Component<ControlBtnsProps, {}> {
     );
   };
 
+  squire = () => {
+    const data: MessageCommand = {
+      uuid: v4(),
+      fromWho: "from earth",
+      type: MessageTypes.command,
+      command: {
+        action: commandActions.formSquire,
+        to: new YUKA.Vector3(-20, 0, 10),
+      }
+    };
+    this.props.entityManager.entities[0].sendMessage(
+      this.props.vehiclesArr[10],
+      "",
+      0,
+      data
+    );
+  };
+
   render() {
     const btns = [
       // { name: 'label', cb: this.label },
@@ -76,6 +94,7 @@ export default class ControlBtns extends React.Component<ControlBtnsProps, {}> {
       { name: "stop", cb: this.stop },
       { name: "sep enb", cb: this.sepEn },
       { name: "sep dis", cb: this.sepDis },
+      { name: "squire", cb: this.squire },
     ];
 
     return (

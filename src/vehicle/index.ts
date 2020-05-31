@@ -6,16 +6,34 @@ import { v4 } from "uuid";
 
 import vehicleGeometry from "./vehicleGeometry";
 import vehicleMaterial from "./vehicleMaterial";
-import { MessageCommand, MessageType, MessageTypes } from "./messagesTypes";
-import { commandActions, CommandMove } from "./commandTypes";
+import {
+  MessageCommand,
+  MessageStatusRes,
+  MessageType,
+  MessageTypes,
+} from "./messagesTypes";
+import {
+  commandActions,
+  CommandFormSquire,
+  CommandMove,
+  CommandSetStatus,
+} from "./commandTypes";
+import { numberInColumn, numberInRow } from "../index";
 
-const messageDelay = 0.01; //seconds
+const messageDelay = 0.0; //seconds
 const messageDistance = 40;
-const separationWeight = 140;
+const separationWeight = 100;
+
+export enum statuses {
+  free = "free",
+  inConstrSq = "inConstructionSquire",
+  inConstrTr = "inConstructionTriangle",
+}
 
 export default class Vehicle extends YUKA.Vehicle {
   label: CSS2DObject;
   uuid: string;
+  status: statuses = statuses.free;
   currentArriveBehavior: {
     behavior: YUKA.ArriveBehavior;
     target?: YUKA.Vector3;
@@ -27,6 +45,15 @@ export default class Vehicle extends YUKA.Vehicle {
   };
   teamMembers: Vehicle[];
   messageStore: MessageType[] = [];
+  _: YUKA.Vehicle;
+
+  squireData: {
+    length: number;
+    depth: number;
+    distance: number;
+    free: Vehicle[];
+    to: YUKA.Vector3;
+  };
 
   functionInUpdate: () => void = () => {};
 
@@ -41,18 +68,18 @@ export default class Vehicle extends YUKA.Vehicle {
     const vehicleMesh = new THREE.Mesh(vehicleGeometry, vehicleMaterial);
     vehicleMesh.matrixAutoUpdate = false;
 
-    this.setLabel("k");
+    this.setLabel("q");
     vehicleMesh.add(this.label);
 
-    (this as YUKA.Vehicle).position = initialPosition;
-    (this as YUKA.Vehicle).maxSpeed = 7;
-    (this as YUKA.Vehicle).maxTurnRate = 2;
-    (this as YUKA.Vehicle).updateNeighborhood = true;
-    (this as YUKA.Vehicle).neighborhoodRadius = 10;
-    (this as YUKA.Vehicle).smoother = new YUKA.Smoother(30);
-    (this as YUKA.Vehicle).boundingRadius =
-      vehicleGeometry.boundingSphere.radius;
-    (this as YUKA.Vehicle).setRenderComponent(vehicleMesh, this.sync);
+    this._ = this as YUKA.Vehicle;
+    this._.position = initialPosition;
+    this._.maxSpeed = 7;
+    this._.maxTurnRate = 2;
+    this._.updateNeighborhood = true;
+    this._.neighborhoodRadius = messageDistance;
+    this._.smoother = new YUKA.Smoother(30);
+    this._.boundingRadius = vehicleGeometry.boundingSphere.radius;
+    this._.setRenderComponent(vehicleMesh, this.sync);
 
     this.initBehaviors(vehiclesArr);
 
@@ -67,7 +94,7 @@ export default class Vehicle extends YUKA.Vehicle {
       vehiclesArr
     );
     obstacleAvoidanceBehavior.brakingWeight = 1;
-    (this as YUKA.Vehicle).steering.add(obstacleAvoidanceBehavior);
+    this._.steering.add(obstacleAvoidanceBehavior);
   }
 
   sync(
@@ -95,15 +122,13 @@ export default class Vehicle extends YUKA.Vehicle {
     const ArriveBehavior = new YUKA.ArriveBehavior(pos);
 
     if (this.currentArriveBehavior) {
-      (this as YUKA.Vehicle).steering.remove(
-        this.currentArriveBehavior.behavior
-      );
+      this._.steering.remove(this.currentArriveBehavior.behavior);
     }
     this.currentArriveBehavior = {
       behavior: ArriveBehavior,
       target: pos,
     };
-    (this as YUKA.Vehicle).steering.add(ArriveBehavior);
+    this._.steering.add(ArriveBehavior);
   }
 
   switchSeparateBehavior(mode: Boolean, weight?: Number) {
@@ -112,9 +137,7 @@ export default class Vehicle extends YUKA.Vehicle {
         this.currentSeparationBehavior &&
         this.currentSeparationBehavior.behavior
       ) {
-        (this as YUKA.Vehicle).steering.remove(
-          this.currentSeparationBehavior.behavior
-        );
+        this._.steering.remove(this.currentSeparationBehavior.behavior);
       }
       const separationBehavior = new YUKA.SeparationBehavior();
       separationBehavior.weight = weight || 20;
@@ -122,7 +145,7 @@ export default class Vehicle extends YUKA.Vehicle {
         behavior: separationBehavior,
         weight: weight || 20,
       };
-      (this as YUKA.Vehicle).steering.add(separationBehavior);
+      this._.steering.add(separationBehavior);
     } else {
       if (
         !this.currentSeparationBehavior ||
@@ -130,29 +153,50 @@ export default class Vehicle extends YUKA.Vehicle {
       ) {
         return;
       }
-      (this as YUKA.Vehicle).steering.remove(
-        this.currentSeparationBehavior.behavior
-      );
+      this._.steering.remove(this.currentSeparationBehavior.behavior);
     }
   }
 
-  getInfo(): {} {
-    const { x, y, z } = (this as YUKA.Vehicle).position;
-    return {
-      id: this.uuid,
-      speed: (this as YUKA.Vehicle).getSpeed().toFixed(2),
-      x: x.toFixed(2),
-      y: y.toFixed(2),
-      z: z.toFixed(2),
+  buildSquire(to: YUKA.Vector3, depth?: number) {
+    const sendCoord = (v: Vehicle, x: number, z: number) => {
+      this.sendMessage(v, {
+        uuid: v4(),
+        fromWho: this,
+        type: MessageTypes.command,
+        command: {
+          action: commandActions.move,
+          to: new YUKA.Vector3(x, 0, z),
+        },
+      });
     };
+    /*
+    for 3 * 5 = 15, 
+    length   = 4
+    depth    = 2
+    distance = 17
+     */
+    const distance = 17;
+    const team = this.teamMembers.filter((tm) => tm !== this);
+
+    for (let i = 0; i < numberInColumn; i++) {
+      for (let j = 0; j < numberInRow; j++) {
+        if (team[i * numberInRow + j])
+          sendCoord(
+            team[i * numberInRow + j],
+            to.x - i * distance,
+            to.z - j * distance
+          );
+      }
+    }
+
+    this.setTargetPosition({
+      x: to.x - (numberInColumn - 1) * distance,
+      z: to.z - (numberInRow - 1) * distance,
+    });
   }
 
-  enable() {
-    (this as YUKA.Vehicle).active = true;
-  }
-
-  disable() {
-    (this as YUKA.Vehicle).active = false;
+  setStatus(status: statuses) {
+    this.status = status;
   }
 
   sayConsole(something?: string, fullName?: boolean) {
@@ -164,18 +208,12 @@ export default class Vehicle extends YUKA.Vehicle {
   }
 
   sendMessage(receiver: Vehicle, message: MessageType) {
-    return super.sendMessage(receiver, "", messageDelay, message);
+    // if (this._.neighbors.find((nei: Vehicle) => nei === receiver))
+    setTimeout(() => super.sendMessage(receiver, "", messageDelay, message));
   }
 
   sendMessageOther(message: MessageType) {
-    this.teamMembers.forEach((tm) => {
-      const distanceBetween = (tm as YUKA.Vehicle)
-        .getWorldPosition(new YUKA.Vector3(0, 0, 0))
-        .distanceTo(
-          (this as YUKA.Vehicle).getWorldPosition(new YUKA.Vector3(0, 0, 0))
-        );
-      if (distanceBetween < messageDistance) this.sendMessage(tm, message);
-    });
+    this.teamMembers.forEach((tm) => this.sendMessage(tm, message));
   }
 
   handleMessage(message: YUKA.Telegram) {
@@ -189,7 +227,7 @@ export default class Vehicle extends YUKA.Vehicle {
         if (msg.sayOther) this.sendMessageOther(msg);
         switch ((msg as MessageCommand).command.action) {
           case commandActions.move:
-            this.switchSeparateBehavior(true, 20);
+            this.switchSeparateBehavior(true, 3);
             this.setTargetPosition(
               ((msg as MessageCommand).command as CommandMove).to
             );
@@ -202,12 +240,24 @@ export default class Vehicle extends YUKA.Vehicle {
             );
             break;
 
+          case commandActions.formSquire:
+            const { depth, to } = (msg as MessageCommand)
+              .command as CommandFormSquire;
+            depth ? this.buildSquire(to, depth) : this.buildSquire(to);
+            break;
+
           case commandActions.separationEnable:
             this.switchSeparateBehavior(true, separationWeight);
             break;
 
           case commandActions.separationDisable:
             this.switchSeparateBehavior(false);
+            break;
+
+          case commandActions.setStatus:
+            this.setStatus(
+              ((msg as MessageCommand).command as CommandSetStatus).status
+            );
             break;
 
           default:
@@ -219,10 +269,42 @@ export default class Vehicle extends YUKA.Vehicle {
         if (msg.sayOther) this.sendMessageOther(msg);
         break;
 
+      case MessageTypes.statusReq:
+        this.sendMessage(<Vehicle>msg.fromWho, {
+          uuid: v4(),
+          fromWho: this,
+          type: MessageTypes.statusRes,
+          status: this.status,
+        });
+        break;
+
+      case MessageTypes.statusRes:
+        break;
+
       default:
         this.sayConsole("wrong message format");
     }
     return true;
+  }
+
+  getInfo(): {} {
+    const { x, y, z } = this._.position;
+    return {
+      id: this.uuid,
+      status: this.status,
+      speed: this._.getSpeed().toFixed(2),
+      x: x.toFixed(2),
+      y: y.toFixed(2),
+      z: z.toFixed(2),
+    };
+  }
+
+  enable() {
+    this._.active = true;
+  }
+
+  disable() {
+    this._.active = false;
   }
 
   private static createDivLabel(text: string): HTMLDivElement {

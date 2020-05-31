@@ -77,7 +77,6 @@ export default class ControlFields extends React.Component<
       uuid: v4(),
       type: MessageTypes.command,
       fromWho: "from earth",
-      sayOther: true,
       command: {
         action,
       },
@@ -122,10 +121,10 @@ export default class ControlFields extends React.Component<
           move
         </button>
         <button className="controlFields__button" onClick={this.separate}>
-          {this.state.separation ? "enb" : "dis"}
+          {!this.state.separation ? "enb" : "dis"}
         </button>
         <button className="controlFields__button" onClick={this.enable}>
-          {this.state.enabled ? "enb" : "dis"}
+          {!this.state.enabled ? "enb" : "dis"}
         </button>
       </div>
     );

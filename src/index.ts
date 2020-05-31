@@ -12,12 +12,12 @@ export const entityManager = new YUKA.EntityManager();
 export const time = new YUKA.Time();
 export const vehiclesArr: Vehicle[] = [];
 
-function initObjects(scene: THREE.Scene) {
-  const initDot = { x: 20, z: 20 };
-  const distance = 9;
-  const numberInRow = 5;
-  const numberInColumn = 2;
+export const initDot = { x: 26, z: 70 };
+export const distance = 13;
+export const numberInRow = 5;
+export const numberInColumn = 3;
 
+function initObjects(scene: THREE.Scene) {
   const initPos: { x: number; z: number }[] = [];
 
   for (let i = 0; i < numberInRow; i++) {

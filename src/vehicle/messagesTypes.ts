@@ -1,9 +1,11 @@
-import Vehicle from "./index";
+import Vehicle, { statuses } from "./index";
 import { CommandType } from "./commandTypes";
 
 export enum MessageTypes {
   command = "command",
   data = "data",
+  statusReq = "statusRequest",
+  statusRes = "statusResponse",
 }
 
 interface Message {
@@ -23,4 +25,18 @@ export interface MessageData extends Message {
   data: {};
 }
 
-export type MessageType = MessageCommand | MessageData | Message;
+export interface MessageStatusReq extends Message {
+  type: MessageTypes.statusReq;
+}
+
+export interface MessageStatusRes extends Message {
+  type: MessageTypes.statusRes;
+  status: statuses;
+}
+
+export type MessageType =
+  | MessageCommand
+  | MessageData
+  | MessageStatusReq
+  | MessageStatusRes
+  | Message;
